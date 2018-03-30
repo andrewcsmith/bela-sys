@@ -1,0 +1,16 @@
+[package]
+name = "bela-sys"
+version = "0.1.0"
+authors = ["Andrew C. Smith <andrewchristophersmith@gmail.com>"]
+links = "bela"
+
+[[bin]]
+name = "hello"
+path = "src/main.rs"
+
+[build-dependencies]
+bindgen = "0.35"
+
+[dependencies]
+libc = "0.2"
+nix = "0.10"
