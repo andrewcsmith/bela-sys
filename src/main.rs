@@ -6,7 +6,7 @@ use bela_sys::{BelaInitSettings, BelaContext};
 use std::{mem, ptr, slice, thread, time};
 use nix::sys::signal;
 
-static mut frame_index: usize = 0;
+static mut FRAME_INDEX: usize = 0;
 
 #[no_mangle]
 pub unsafe extern fn setup(context: *mut BelaContext, _user_data: *mut std::os::raw::c_void) -> bool {
@@ -31,10 +31,10 @@ pub unsafe extern fn render(context: *mut BelaContext, _user_data: *mut std::os:
 
     let len = audio_out.len();
     for (idx, samp) in audio_out.iter_mut().enumerate() {
-        *samp = (idx as f32 / len as f32) * (frame_index % 5) as f32;
+        *samp = (idx as f32 / len as f32) * (FRAME_INDEX % 5) as f32;
     }
 
-    frame_index += 1;
+    FRAME_INDEX += 1;
 }
 
 fn main() {

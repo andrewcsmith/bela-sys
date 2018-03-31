@@ -2,8 +2,6 @@
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
-use std::slice;
-
 pub extern fn handle_sigint(_: i32) {
     unsafe { 
         gShouldStop = 1; 
