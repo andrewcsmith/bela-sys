@@ -20,20 +20,6 @@ use nix::sys::signal;
 static mut FRAME_INDEX: usize = 0;
 
 #[no_mangle]
-pub unsafe extern fn setup(context: *mut BelaContext, _user_data: *mut std::os::raw::c_void) -> bool {
-    let n_frames = (*context).audioFrames;
-    let n_channels = (*context).audioOutChannels;
-
-    let audio_out: &mut [f32] = slice::from_raw_parts_mut((*context).audioOut as *mut f32, (n_frames * n_channels) as usize);
-
-    for samp in audio_out.iter_mut() {
-        *samp = 0.0;
-    }
-
-    true
-}
-
-#[no_mangle]
 pub unsafe extern fn render(context: *mut BelaContext, _user_data: *mut std::os::raw::c_void) {
     let n_frames = (*context).audioFrames;
     let n_channels = (*context).audioOutChannels;
@@ -53,9 +39,7 @@ fn main() {
         let mut settings: BelaInitSettings = mem::uninitialized();
         bela_sys::Bela_defaultSettings(&mut settings);
         bela_sys::Bela_setVerboseLevel(1);
-        settings.setup = Some(setup);
         settings.render = Some(render);
-        settings.cleanup = None;
         settings.verbose = 1;
         settings.highPerformanceMode = 1;
         settings.analogOutputsPersist = 0;

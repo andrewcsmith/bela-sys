@@ -10,7 +10,7 @@ fn main() {
     println!("cargo:rustc-link-lib=xenomai");
     println!("cargo:rustc-link-lib=rt");
     println!("cargo:rustc-link-lib=stdc++");
-    println!("cargo:rustc-link-search=all=lib");
+    println!("cargo:rustc-link-search=all={}/lib", env::var("CARGO_MANIFEST_DIR").unwrap());
     let bindings = bindgen::Builder::default()
         .header("ext/Bela.h")
         .clang_arg("-Iinclude")
