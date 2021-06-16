@@ -22,8 +22,8 @@ the directory `/root/Bela/lib`.
 
 ```bash
 cargo build --release --target=armv7-unknown-linux-gnueabihf --bin hello
-scp target/armv7-unknown-linux-gnueabihf/release/hello root@192.168.7.2:/root/hello
-ssh root@192.168.7.2 "LD_LIBRARY_PATH=/root/Bela/lib /root/hello"
+scp target/armv7-unknown-linux-gnueabihf/release/hello root@bela.local:/root/hello
+ssh root@bela.local "LD_LIBRARY_PATH=/root/Bela/lib /root/hello"
 ```
 
 ## disclaimer
