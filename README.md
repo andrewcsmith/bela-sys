@@ -21,7 +21,7 @@ This assumes you've built libbela.so and that it's saved on your Bela in
 the directory `/root/Bela/lib`.
 
 ```bash
-cargo build --release --target=armv7-unknown-linux-gnnueabihf --bin hello
+cargo build --release --target=armv7-unknown-linux-gnueabihf --bin hello
 scp target/armv7-unknown-linux-gnueabihf/release/hello root@192.168.7.2:/root/hello
 ssh root@192.168.7.2 "LD_LIBRARY_PATH=/root/Bela/lib /root/hello"
 ```
