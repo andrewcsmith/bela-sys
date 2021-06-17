@@ -7,13 +7,11 @@ fn main() {
     #[cfg(feature = "static")]
     {
         println!("cargo:rustc-link-lib=static=bela");
-        println!("cargo:rustc-link-lib=static=belaextra");
         println!("cargo:rustc-link-lib=stdc++");
     }
     #[cfg(not(feature = "static"))]
     {
         println!("cargo:rustc-link-lib=bela");
-        println!("cargo:rustc-link-lib=belaextra");
     }
     println!("cargo:rustc-link-lib=cobalt");
     println!("cargo:rustc-link-lib=prussdrv");
