@@ -5,8 +5,8 @@ authors = ["Andrew C. Smith <andrewchristophersmith@gmail.com>"]
 links = "bela"
 
 [build-dependencies]
-bindgen = "0.35"
+bindgen = "0.58"
 
 [dev-dependencies]
 libc = "0.2"
-nix = "0.10"
+nix = "0.21"
