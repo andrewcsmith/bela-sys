@@ -10,3 +10,6 @@ bindgen = "0.58"
 [dev-dependencies]
 libc = "0.2"
 nix = "0.21"
+
+[features]
+static = []

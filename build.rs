@@ -4,14 +4,23 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    println!("cargo:rustc-link-lib=bela");
-    println!("cargo:rustc-link-lib=belaextra");
+    #[cfg(feature = "static")]
+    {
+        println!("cargo:rustc-link-lib=static=bela");
+        println!("cargo:rustc-link-lib=static=belaextra");
+        println!("cargo:rustc-link-lib=stdc++");
+    }
+    #[cfg(not(feature = "static"))]
+    {
+        println!("cargo:rustc-link-lib=bela");
+        println!("cargo:rustc-link-lib=belaextra");
+    }
     println!("cargo:rustc-link-lib=cobalt");
-    println!("cargo:rustc-link-lib=modechk");
     println!("cargo:rustc-link-lib=prussdrv");
-    println!("cargo:rustc-link-lib=rt");
-    println!("cargo:rustc-link-lib=stdc++");
-    println!("cargo:rustc-link-search=all={}/lib", env::var("CARGO_MANIFEST_DIR").unwrap());
+    println!(
+        "cargo:rustc-link-search=all={}/lib",
+        env::var("CARGO_MANIFEST_DIR").unwrap()
+    );
     let bindings = bindgen::Builder::default()
         .header("ext/Bela.h")
         .clang_arg("-Iinclude")
