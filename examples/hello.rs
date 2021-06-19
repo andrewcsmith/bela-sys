@@ -37,6 +37,12 @@ pub unsafe extern "C" fn render(context: *mut BelaContext, _user_data: *mut std:
     FRAME_INDEX += 1;
 }
 
+extern "C" fn signal_handler(_signal: std::os::raw::c_int) {
+    unsafe {
+        bela_sys::Bela_requestStop();
+    }
+}
+
 fn main() {
     unsafe {
         let mut settings = {
@@ -63,7 +69,7 @@ fn main() {
             panic!("Aborting");
         }
 
-        let handler = signal::SigHandler::Handler(bela_sys::handle_sigint);
+        let handler = signal::SigHandler::Handler(signal_handler);
         let flags = signal::SaFlags::empty();
         let set = signal::SigSet::empty();
         let sig_action = signal::SigAction::new(handler, flags, set);
@@ -71,7 +77,7 @@ fn main() {
         signal::sigaction(signal::SIGINT, &sig_action).unwrap();
         signal::sigaction(signal::SIGTERM, &sig_action).unwrap();
 
-        while bela_sys::gShouldStop == 0 {
+        while bela_sys::Bela_stopRequested() != 0 {
             thread::sleep(time::Duration::new(1, 0));
         }
 

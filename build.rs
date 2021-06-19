@@ -38,6 +38,12 @@ fn main() {
         .header(bela_h.to_str().unwrap())
         .clang_arg(format!("--sysroot={}", bela_root.to_str().unwrap()))
         .clang_arg(format!("-I{}", bela_include.to_str().unwrap()))
+        .allowlist_type("Bela.*")
+        .allowlist_function("Bela_.*")
+        .blocklist_function("Bela_userSettings")
+        .allowlist_function("rt_.*printf")
+        .allowlist_var("BELA_.*")
+        .allowlist_var("DEFAULT_.*")
         .generate()
         .expect("Unable to generate bindings");
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
