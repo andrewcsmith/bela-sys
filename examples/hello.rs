@@ -4,9 +4,9 @@
 //! the directory `/root/Bela/lib`.
 //!
 //! ```bash
-//! cargo build --release --target=armv7-unknown-linux-gnnueabihf --bin hello
-//! scp target/armv7-unknown-linux-gnueabihf/release/hello root@192.168.7.2:/root/hello
-//! ssh root@192.168.7.2 "LD_LIBRARY_PATH=/root/Bela/lib /root/hello"
+//! cargo build --release --target=armv7-unknown-linux-gnueabihf --examples
+//! scp target/armv7-unknown-linux-gnueabihf/release/examples/hello root@bela.local:/root/hello
+//! ssh root@bela.local "LD_LIBRARY_PATH=/root/Bela/lib /root/hello"
 //! ```
 //!
 extern crate bela_sys;
