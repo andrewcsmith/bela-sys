@@ -17,7 +17,13 @@ use bela_sys::{BelaContext, BelaInitSettings};
 use nix::sys::signal;
 use std::{mem, ptr, slice, thread, time};
 
+#[cfg(feature = "midi")]
+use bela_sys::midi::*;
+
 static mut FRAME_INDEX: usize = 0;
+
+#[cfg(feature = "midi")]
+static mut MIDI: *mut bela_sys::midi::Midi = std::ptr::null_mut();
 
 #[no_mangle]
 pub unsafe extern "C" fn render(context: *mut BelaContext, _user_data: *mut std::os::raw::c_void) {
@@ -57,6 +63,11 @@ fn main() {
         settings.analogOutputsPersist = 0;
         settings.uniformSampleRate = 1;
 
+        #[cfg(feature = "midi")]
+        {
+            MIDI = Midi_new(b"hw:1,0,0\0".as_ptr());
+        }
+
         if bela_sys::Bela_initAudio(&mut settings, ptr::null_mut()) != 0 {
             println!("settings.render: {:?}", &settings.render);
             panic!("lol fail");
@@ -83,5 +94,11 @@ fn main() {
 
         bela_sys::Bela_stopAudio();
         bela_sys::Bela_cleanupAudio();
+
+        #[cfg(feature = "midi")]
+        {
+            Midi_delete(MIDI);
+            MIDI = std::ptr::null_mut();
+        }
     }
 }
