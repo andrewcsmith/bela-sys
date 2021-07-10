@@ -77,7 +77,7 @@ fn main() {
         signal::sigaction(signal::SIGINT, &sig_action).unwrap();
         signal::sigaction(signal::SIGTERM, &sig_action).unwrap();
 
-        while bela_sys::Bela_stopRequested() != 0 {
+        while bela_sys::Bela_stopRequested() == 0 {
             thread::sleep(time::Duration::new(1, 0));
         }
 
