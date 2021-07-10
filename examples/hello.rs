@@ -18,49 +18,12 @@ use bela_sys::{BelaContext, BelaInitSettings};
 use nix::sys::signal;
 use std::{mem, ptr, slice, thread, time};
 
-#[cfg(feature = "midi")]
-use bela_sys::midi::*;
-
 static mut FRAME_INDEX: usize = 0;
-
-#[cfg(feature = "midi")]
-static mut MIDI: *mut bela_sys::midi::Midi = ptr::null_mut();
-
-extern "C" fn setup(_context: *mut BelaContext, _user_data: *mut std::os::raw::c_void) -> bool {
-    #[cfg(feature = "midi")]
-    unsafe {
-        assert!(MIDI.is_null());
-        MIDI = Midi_new(b"hw:0,0,0\0".as_ptr());
-    }
-    true
-}
-
-extern "C" fn cleanup(_context: *mut BelaContext, _user_data: *mut std::os::raw::c_void) {
-    #[cfg(feature = "midi")]
-    unsafe {
-        Midi_delete(MIDI);
-        MIDI = std::ptr::null_mut();
-    }
-}
 
 extern "C" fn render(context: *mut BelaContext, _user_data: *mut std::os::raw::c_void) {
     let context = unsafe { &mut *context };
     let n_frames = context.audioFrames;
     let n_channels = context.audioOutChannels;
-
-    #[cfg(feature = "midi")]
-    unsafe {
-        if !MIDI.is_null() {
-            while Midi_availableMessages(MIDI) > 0 {
-                let mut msg_buf = [0u8; 3];
-                let msg_len = Midi_getMessage(MIDI, msg_buf.as_mut_ptr()) as usize;
-                assert!(msg_len <= 3);
-                if msg_len != 0 && (msg_buf[0] & 0b1111_0000) == 0b1001_0000 {
-                    bela_sys::rt_printf(b"Note on\n\0".as_ptr());
-                }
-            }
-        }
-    }
 
     let audio_out: &mut [f32] =
         unsafe { slice::from_raw_parts_mut(context.audioOut, (n_frames * n_channels) as usize) };
@@ -89,9 +52,7 @@ fn main() {
             settings.assume_init()
         };
         bela_sys::Bela_setVerboseLevel(1);
-        settings.setup = Some(setup);
         settings.render = Some(render);
-        settings.cleanup = Some(cleanup);
         settings.verbose = 1;
         settings.highPerformanceMode = 1;
         settings.analogOutputsPersist = 0;
