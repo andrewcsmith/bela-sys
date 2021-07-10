@@ -55,12 +55,12 @@ fn main() {
     {
         let midi_root = bela_root.join("root/Bela/libraries/Midi");
 
-        // TODO: asound is in usr/lib/arm-linux-gnueabihf, so copy it root/Bela/lib,
+        // TODO: asound is in usr/lib/arm-linux-gnueabihf, so copy it to OUT_DIR,
         // as otherwise the link step will also find libpthread.so and other link
         // scripts there which reference absolute paths. Is there a cleaner
         // solution?
         let asound_lib = bela_root.join("usr/lib/arm-linux-gnueabihf/libasound.so");
-        let asound_copy = bela_lib.join("libasound.so");
+        let asound_copy = out_path.join("libasound.so");
         if !asound_copy.exists() {
             std::fs::copy(asound_lib, asound_copy).unwrap();
         }
