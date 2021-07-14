@@ -9,6 +9,7 @@
 //! ssh root@bela.local "LD_LIBRARY_PATH=/root/Bela/lib /root/hello"
 //! ```
 //!
+
 extern crate bela_sys;
 extern crate libc;
 extern crate nix;
@@ -19,22 +20,22 @@ use std::{mem, ptr, slice, thread, time};
 
 static mut FRAME_INDEX: usize = 0;
 
-#[no_mangle]
-pub unsafe extern "C" fn render(context: *mut BelaContext, _user_data: *mut std::os::raw::c_void) {
-    let n_frames = (*context).audioFrames;
-    let n_channels = (*context).audioOutChannels;
+extern "C" fn render(context: *mut BelaContext, _user_data: *mut std::os::raw::c_void) {
+    let context = unsafe { &mut *context };
+    let n_frames = context.audioFrames;
+    let n_channels = context.audioOutChannels;
 
-    let audio_out: &mut [f32] = slice::from_raw_parts_mut(
-        (*context).audioOut as *mut f32,
-        (n_frames * n_channels) as usize,
-    );
+    let audio_out: &mut [f32] =
+        unsafe { slice::from_raw_parts_mut(context.audioOut, (n_frames * n_channels) as usize) };
+
+    let frame_index = unsafe { &mut FRAME_INDEX };
 
     let len = audio_out.len();
     for (idx, samp) in audio_out.iter_mut().enumerate() {
-        *samp = (idx as f32 / len as f32) * (FRAME_INDEX % 5) as f32;
+        *samp = (idx as f32 / len as f32) * (*frame_index % 5) as f32;
     }
 
-    FRAME_INDEX += 1;
+    *frame_index += 1;
 }
 
 extern "C" fn signal_handler(_signal: std::os::raw::c_int) {
@@ -77,7 +78,7 @@ fn main() {
         signal::sigaction(signal::SIGINT, &sig_action).unwrap();
         signal::sigaction(signal::SIGTERM, &sig_action).unwrap();
 
-        while bela_sys::Bela_stopRequested() != 0 {
+        while bela_sys::Bela_stopRequested() == 0 {
             thread::sleep(time::Duration::new(1, 0));
         }
 

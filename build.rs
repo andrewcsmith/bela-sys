@@ -50,4 +50,39 @@ fn main() {
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings");
+
+    #[cfg(feature = "midi")]
+    {
+        let midi_root = bela_root.join("root/Bela/libraries/Midi");
+
+        // TODO: asound is in usr/lib/arm-linux-gnueabihf, so copy it to OUT_DIR,
+        // as otherwise the link step will also find libpthread.so and other link
+        // scripts there which reference absolute paths. Is there a cleaner
+        // solution?
+        let asound_lib = bela_root.join("usr/lib/arm-linux-gnueabihf/libasound.so");
+        let asound_copy = out_path.join("libasound.so");
+        if !asound_copy.exists() {
+            std::fs::copy(asound_lib, asound_copy).unwrap();
+        }
+
+        cc::Build::new()
+            .cpp(true)
+            .object(midi_root.join("build/Midi_c.o"))
+            .object(midi_root.join("build/Midi.o"))
+            .compile("midi");
+        println!("cargo:rustc-link-lib=asound");
+        println!("cargo:rustc-link-lib=modechk");
+
+        let midi_h = midi_root.join("Midi_c.h");
+        let bindings = bindgen::Builder::default()
+            .header(midi_h.to_str().unwrap())
+            .clang_arg(format!("--sysroot={}", bela_root.to_str().unwrap()))
+            .clang_arg(format!("-I{}", bela_include.to_str().unwrap()))
+            .allowlist_function("Midi_.*")
+            .generate()
+            .expect("Unable to generate bindings");
+        bindings
+            .write_to_file(out_path.join("midi_bindings.rs"))
+            .expect("Couldn't write bindings");
+    }
 }
