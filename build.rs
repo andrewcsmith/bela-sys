@@ -3,6 +3,17 @@ extern crate bindgen;
 use std::env;
 use std::path::PathBuf;
 
+use bindgen::callbacks::ParseCallbacks;
+
+#[derive(Debug)]
+struct DoxygenCallback;
+
+impl ParseCallbacks for DoxygenCallback {
+    fn process_comment(&self, comment: &str) -> Option<String> {
+        Some(doxygen_rs::transform(comment))
+    }
+}
+
 fn main() {
     let bela_root = PathBuf::from(env::var("BELA_SYSROOT").unwrap_or_else(|_| "/".into()));
     let bela_include = bela_root.join("root/Bela/include");
@@ -44,6 +55,7 @@ fn main() {
         .allowlist_function("rt_.*printf")
         .allowlist_var("BELA_.*")
         .allowlist_var("DEFAULT_.*")
+        .parse_callbacks(Box::new(DoxygenCallback))
         .generate()
         .expect("Unable to generate bindings");
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
@@ -79,6 +91,7 @@ fn main() {
             .clang_arg(format!("--sysroot={}", bela_root.to_str().unwrap()))
             .clang_arg(format!("-I{}", bela_include.to_str().unwrap()))
             .allowlist_function("Midi_.*")
+            .parse_callbacks(Box::new(DoxygenCallback))
             .generate()
             .expect("Unable to generate bindings");
         bindings
